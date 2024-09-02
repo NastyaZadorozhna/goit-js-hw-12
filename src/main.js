@@ -10,6 +10,7 @@ const loadMoreBtnEl = document.querySelector('.js-load-more');
 
 let currentPage = 1;
 let searchedValue = '';
+let cardHeight = 0;
 
 function showLoader() {
   loader.classList.remove('is-hidden');
@@ -53,6 +54,9 @@ const onSearchFormSubmit = async event => {
 
     galleryEl.innerHTML = galleryCardsTemplate;
 
+    const galleryCardEl = galleryEl.querySelector('li');
+    cardHeight = galleryCardEl.getBoundingClientRect().height;
+
     let imageGallery = new SimpleLightbox('.gallery a', {
       navText: ['<', '>'],
       captionsData: 'alt',
@@ -82,21 +86,27 @@ const onLoadMoreBtnClick = async event => {
       .join('');
 
     galleryEl.insertAdjacentHTML('beforeend', galleryCardsTemplate);
-
-
-    if(Math.ceil(response.data.totalHits / 15) === currentPage);{
-      LoadMoreBtnEl.classList.add('is-hidden-load');
-    iziToast.info({
-      position: 'topCenter',
-      message: 'We are sorry,but you have reached the end of search results',
+   
+    scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth',
     });
+
+    const totalPages = Math.ceil(response.data.totalHits / 15);
+    if (currentPage >= totalPages) {
+      LoadMoreBtnEl.classList.add('is-hidden');
+      iziToast.info({
+        position: 'topCenter',
+        message: 'We are sorry,but you have reached the end of search results',
+      });
   }
-  } catch {
+  } catch (err){
     console.log(err);
   } finally {
     hideLoader();
   }
   searchFormEl.reset();
+
 };
 
 searchFormEl.addEventListener('submit', onSearchFormSubmit);
