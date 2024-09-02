@@ -19,7 +19,7 @@ function hideLoader() {
   loader.classList.add('is-hidden');
 }
 
-showLoader();
+hideLoader();
 setTimeout(hideLoader, 300);
 
 const onSearchFormSubmit = async event => {
@@ -28,18 +28,27 @@ const onSearchFormSubmit = async event => {
     event.preventDefault();
 
     currentPage = 1;
-
-    const searchedValue = searchFormEl.elements.user_query.value.trim();
-
+    searchedValue = searchFormEl.elements.user_query.value.trim();
     const response = await fetchPhotos(searchedValue, currentPage);
 
     console.log(response);
 
-    if (!response.data.hits.length || searchedValue === '') {
+    if (searchedValue === '') {
+      iziToast.warning({
+        title: 'Caution',
+        message: 'Input field must not be empty',
+        position: 'bottomCenter',
+      });
+      
+      loadMoreBtnEl.classList.add('is-hidden');
+
+      return;
+    }
+
+    if (response.data.hits.length === 0) {
       iziToast.error({
-        message:
-          'Sorry, there are no images matching your search query. Please try again!',
-        position: 'center',
+        message: 'Sorry, there are no images matching your search query. Please try again!',
+        position: 'bottomCenter',
       });
 
       galleryEl.innerHTML = '';
@@ -94,7 +103,7 @@ const onLoadMoreBtnClick = async event => {
 
     const totalPages = Math.ceil(response.data.totalHits / 15);
     if (currentPage >= totalPages) {
-      LoadMoreBtnEl.classList.add('is-hidden');
+      loadMoreBtnEl.classList.add('is-hidden');
       iziToast.info({
         position: 'topCenter',
         message: 'We are sorry,but you have reached the end of search results',
