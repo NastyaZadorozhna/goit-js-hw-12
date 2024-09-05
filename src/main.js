@@ -40,7 +40,6 @@ const onSearchFormSubmit = async event => {
         position: 'bottomCenter',
       });
       
-      loadMoreBtnEl.classList.add('is-hidden');
 
       return;
     }
@@ -75,6 +74,15 @@ const onSearchFormSubmit = async event => {
     imageGallery.refresh();
 
     loadMoreBtnEl.classList.remove('is-hidden-load');
+
+    const totalPages = Math.ceil(response.data.totalHits / 15);
+    if (currentPage >= totalPages) {
+      loadMoreBtnEl.classList.add('is-hidden-load');
+      iziToast.info({
+        title: 'Info',
+        message: 'We are sorry,but you have reached the end of search results',
+      });
+    }
   } catch (err) {
     console.log(err);
   } finally {
@@ -103,7 +111,7 @@ const onLoadMoreBtnClick = async event => {
 
     const totalPages = Math.ceil(response.data.totalHits / 15);
     if (currentPage >= totalPages) {
-      loadMoreBtnEl.classList.add('is-hidden');
+      loadMoreBtnEl.classList.add('is-hidden-load');
       iziToast.info({
         position: 'topCenter',
         message: 'We are sorry,but you have reached the end of search results',
